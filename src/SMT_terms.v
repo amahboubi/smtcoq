@@ -268,166 +268,155 @@ Module Typ.
 
   Section Interp.
 
-    Import OrderedTypeEx.
+    Import OrderedTypeEx. 
 
-    Variable t_i : PArray.array typ_compdec.
+    Variable t_i : PArray.array Type. 
 
-    Fixpoint interp_compdec_aux (t:type) : {ty: Type & CompDec ty} :=
+    Fixpoint interp_compdec_aux (t:type) : Type :=
       match t with
       | TFArray ti te =>
         let iti := interp_compdec_aux ti in
         let ite := interp_compdec_aux te in
-        let cti := projT2 iti in
-        let cte := projT2 ite in
-        let tti := type_compdec cti in
-        let tte := type_compdec cte in
-        existT (fun ty : Type => CompDec ty)
-               (@farray tti
-                        tte
-                        (@ord_of_compdec tti cti)
-                        (@inh_of_compdec tte cte))
-               (FArray_compdec tti tte)
-      | Tindex i =>
-        existT (fun ty : Type => CompDec ty)
-               (te_carrier (t_i .[of_Z (Z.of_N i)])) (te_compdec (t_i .[of_Z (Z.of_N i)]))
-      | TZ => existT (fun ty : Type => CompDec ty) Z Z_compdec
-      | Tbool => existT (fun ty : Type => CompDec ty) bool bool_compdec
-      | Tpositive => existT (fun ty : Type => CompDec ty) positive Positive_compdec
-      | TBV n => existT (fun ty : Type => CompDec ty) (BITVECTOR_LIST.bitvector n) (BV_compdec n)
+        Raw.farray iti ite
+      | Tindex i => t_i .[of_Z (Z.of_N i)]
+      | TZ => Z
+      | Tbool => bool
+      | Tpositive => positive
+      | TBV n => BITVECTOR_LIST.bitvector n
       end.
 
-    Definition interp (t:type) : Type := type_compdec (projT2 (interp_compdec_aux t)).
+    (* TODO: clean *)
+    Definition interp (t:type) : Type := interp_compdec_aux t.
 
-    Definition interp_compdec (t:type) : CompDec (interp t) :=
-      projT2 (interp_compdec_aux t).
-
+    (* Definition interp_compdec (t:type) : CompDec (interp t) := *)
+    (*   projT2 (interp_compdec_aux t). *)
 
     Definition interp_ftype (t:ftype) :=
       List.fold_right (fun dom codom => interp dom -> codom)
       (interp (snd t)) (fst t).
 
 
-    Global Instance dec_interp (t:type) : DecType (interp t) :=
-      (@EqbToDecType _ (@eqbtype_of_compdec (interp t) (interp_compdec t))).
+    (* Global Instance dec_interp (t:type) : DecType (interp t) := *)
+    (*   (@EqbToDecType _ (@eqbtype_of_compdec (interp t) (interp_compdec t))). *)
 
-    Global Instance ord_interp (t:type) : OrdType (interp t) :=
-      @ord_of_compdec (interp t) (interp_compdec t).
+    (* Global Instance ord_interp (t:type) : OrdType (interp t) := *)
+    (*   @ord_of_compdec (interp t) (interp_compdec t). *)
 
-    Global Instance comp_interp (t:type) : Comparable (interp t) :=
-      @comp_of_compdec (interp t) (interp_compdec t).
+    (* Global Instance comp_interp (t:type) : Comparable (interp t) := *)
+    (*   @comp_of_compdec (interp t) (interp_compdec t). *)
 
-    Global Instance inh_interp (t:type) : Inhabited (interp t) :=
-      @inh_of_compdec (interp t) (interp_compdec t).
+    (* Global Instance inh_interp (t:type) : Inhabited (interp t) := *)
+    (*   @inh_of_compdec (interp t) (interp_compdec t). *)
 
 
     (* Boolean equality over interpretation of a btype *)
-    Section Interp_Equality.
+    (* Section Interp_Equality. *)
 
 
-      Definition i_eqb (t:type) : interp t -> interp t -> bool :=
-        eqb_of_compdec (interp_compdec t).
+    (*   Definition i_eqb (t:type) : interp t -> interp t -> bool := *)
+    (*     eqb_of_compdec (interp_compdec t). *)
 
 
-      Lemma eqb_compdec_spec {t} (c : CompDec t) : forall x y,
-          eqb_of_compdec c x y = true <-> x = y.
-      Proof.
-        intros x y.
-        destruct c as [TY [E HE] O C I].
-        unfold eqb_of_compdec.
-        simpl. now rewrite HE.
-      Qed.
+    (*   Lemma eqb_compdec_spec {t} (c : CompDec t) : forall x y, *)
+    (*       eqb_of_compdec c x y = true <-> x = y. *)
+    (*   Proof. *)
+    (*     intros x y. *)
+    (*     destruct c as [TY [E HE] O C I]. *)
+    (*     unfold eqb_of_compdec. *)
+    (*     simpl. now rewrite HE. *)
+    (*   Qed. *)
 
-      Lemma eqb_compdec_spec_false {t} (c : CompDec t) : forall x y,
-          eqb_of_compdec c x y = false <-> x <> y.
-      Proof.
-        intros x y.
-        apply eqb_spec_false.
-      Qed.
+    (*   Lemma eqb_compdec_spec_false {t} (c : CompDec t) : forall x y, *)
+    (*       eqb_of_compdec c x y = false <-> x <> y. *)
+    (*   Proof. *)
+    (*     intros x y. *)
+    (*     apply eqb_spec_false. *)
+    (*   Qed. *)
 
-      Lemma i_eqb_spec : forall t x y, i_eqb t x y <-> x = y.
-      Proof.
-        intros.
-        unfold i_eqb.
-        apply eqb_compdec_spec.
-      Qed.
+    (*   Lemma i_eqb_spec : forall t x y, i_eqb t x y <-> x = y. *)
+    (*   Proof. *)
+    (*     intros. *)
+    (*     unfold i_eqb. *)
+    (*     apply eqb_compdec_spec. *)
+    (*   Qed. *)
 
-      Lemma i_eqb_spec_false : forall t x y, i_eqb t x y = false <-> x <> y.
-      Proof.
-        intros.
-        unfold i_eqb.
-        apply eqb_compdec_spec_false.
-      Qed.
+    (*   Lemma i_eqb_spec_false : forall t x y, i_eqb t x y = false <-> x <> y. *)
+    (*   Proof. *)
+    (*     intros. *)
+    (*     unfold i_eqb. *)
+    (*     apply eqb_compdec_spec_false. *)
+    (*   Qed. *)
 
-      Lemma reflect_eqb_compdec {t} (c : CompDec t) : forall x y,
-          reflect (x = y) (eqb_of_compdec c x y).
-      Proof.
-        intros x y.
-        apply SMT_classes.reflect_eqb.
-      Qed.
-
-
-      Lemma reflect_i_eqb : forall t x y, reflect (x = y) (i_eqb t x y).
-      Proof.
-        intros.
-        unfold i_eqb.
-        apply reflect_eqb_compdec.
-      Qed.
-
-     Lemma i_eqb_sym : forall t x y, i_eqb t x y = i_eqb t y x.
-     Proof. intros. apply eqb_sym2. Qed.
+    (*   Lemma reflect_eqb_compdec {t} (c : CompDec t) : forall x y, *)
+    (*       reflect (x = y) (eqb_of_compdec c x y). *)
+    (*   Proof. *)
+    (*     intros x y. *)
+    (*     apply SMT_classes.reflect_eqb. *)
+    (*   Qed. *)
 
 
-      Definition i_eqb_eqb (t:type) : interp t -> interp t -> bool :=
-        match t with
-        | Tindex i => eqb_of_compdec (t_i.[of_Z (Z.of_N i)]).(te_compdec)
-        | TZ => Z.eqb (* Zeq_bool *)
-        | Tbool => Bool.eqb
-        | Tpositive => Pos.eqb
-        | TBV n => (@BITVECTOR_LIST.bv_eq n)
-        | TFArray ti te => i_eqb (TFArray ti te)
-        end.
+    (*   Lemma reflect_i_eqb : forall t x y, reflect (x = y) (i_eqb t x y). *)
+    (*   Proof. *)
+    (*     intros. *)
+    (*     unfold i_eqb. *)
+    (*     apply reflect_eqb_compdec. *)
+    (*   Qed. *)
+
+    (*  Lemma i_eqb_sym : forall t x y, i_eqb t x y = i_eqb t y x. *)
+    (*  Proof. intros. apply eqb_sym2. Qed. *)
 
 
-      Lemma eqb_compdec_refl {t} (c : CompDec t) : forall x,
-          eqb_of_compdec c x x = true.
-      Proof.
-        intro x.
-        apply eqb_refl.
-      Qed.
-
-      Lemma i_eqb_refl : forall t x, i_eqb t x x.
-      Proof.
-        intros.
-        unfold i_eqb.
-        apply eqb_compdec_refl.
-      Qed.
+    (*   Definition i_eqb_eqb (t:type) : interp t -> interp t -> bool := *)
+    (*     match t with *)
+    (*     | Tindex i => eqb_of_compdec (t_i.[of_Z (Z.of_N i)]).(te_compdec) *)
+    (*     | TZ => Z.eqb (* Zeq_bool *) *)
+    (*     | Tbool => Bool.eqb *)
+    (*     | Tpositive => Pos.eqb *)
+    (*     | TBV n => (@BITVECTOR_LIST.bv_eq n) *)
+    (*     | TFArray ti te => i_eqb (TFArray ti te) *)
+    (*     end. *)
 
 
-      Lemma eqb_compdec_trans {t} (c : CompDec t) : forall x y z,
-          eqb_of_compdec c x y = true ->
-          eqb_of_compdec c y z = true ->
-          eqb_of_compdec c x z = true.
-      Proof.
-        intros x y z.
-        apply eqb_trans.
-      Qed.
+    (*   Lemma eqb_compdec_refl {t} (c : CompDec t) : forall x, *)
+    (*       eqb_of_compdec c x x = true. *)
+    (*   Proof. *)
+    (*     intro x. *)
+    (*     apply eqb_refl. *)
+    (*   Qed. *)
 
-      Lemma i_eqb_trans : forall t x y z, i_eqb t x y -> i_eqb t y z -> i_eqb t x z.
-      Proof.
-        intros.
-        unfold i_eqb.
-        apply (eqb_compdec_trans _ x y z); auto.
-      Qed.
+    (*   Lemma i_eqb_refl : forall t x, i_eqb t x x. *)
+    (*   Proof. *)
+    (*     intros. *)
+    (*     unfold i_eqb. *)
+    (*     apply eqb_compdec_refl. *)
+    (*   Qed. *)
 
 
-      Lemma i_eqb_t : forall t x y, i_eqb t x y = i_eqb_eqb t x y.
-      Proof.
-        intros.
-        unfold i_eqb_eqb.
-        destruct t; simpl; auto; unfold i_eqb; simpl.
-      Qed.
+    (*   Lemma eqb_compdec_trans {t} (c : CompDec t) : forall x y z, *)
+    (*       eqb_of_compdec c x y = true -> *)
+    (*       eqb_of_compdec c y z = true -> *)
+    (*       eqb_of_compdec c x z = true. *)
+    (*   Proof. *)
+    (*     intros x y z. *)
+    (*     apply eqb_trans. *)
+    (*   Qed. *)
 
-    End Interp_Equality.
+    (*   Lemma i_eqb_trans : forall t x y z, i_eqb t x y -> i_eqb t y z -> i_eqb t x z. *)
+    (*   Proof. *)
+    (*     intros. *)
+    (*     unfold i_eqb. *)
+    (*     apply (eqb_compdec_trans _ x y z); auto. *)
+    (*   Qed. *)
+
+
+    (*   Lemma i_eqb_t : forall t x y, i_eqb t x y = i_eqb_eqb t x y. *)
+    (*   Proof. *)
+    (*     intros. *)
+    (*     unfold i_eqb_eqb. *)
+    (*     destruct t; simpl; auto; unfold i_eqb; simpl. *)
+    (*   Qed. *)
+
+    (* End Interp_Equality. *)
 
   End Interp.
 
@@ -532,7 +521,7 @@ Module Typ.
 
 
     (* Remark : I use this definition because eqb will not be used only in the interpretation *)
-    Fixpoint eqb (A B: type) : bool :=
+    Fixpoint eqb (A B : type) : bool :=
       match A, B with
       | Tindex i, Tindex j => N.eqb i j
       | TZ, TZ => true
@@ -737,7 +726,6 @@ Module Atom.
    | BO_Zle
    | BO_Zge
    | BO_Zgt
-   | BO_eq (_ : Typ.type)
    | BO_BVand (_: N)
    | BO_BVor (_: N)
    | BO_BVxor (_: N)
@@ -748,25 +736,38 @@ Module Atom.
    | BO_BVconcat (_: N) (_: N)
    | BO_BVshl (_: N)
    | BO_BVshr (_: N)
-   | BO_select (_ : Typ.type) (_ : Typ.type)
-   | BO_diffarray (_ : Typ.type) (_ : Typ.type)
   .
 
-  Inductive nop : Type :=
-   | NO_distinct (_ : Typ.type).
+  Inductive eqop (t : Typ.type) : Type :=
+   | BO_eq
+  .
 
-  Inductive terop : Type :=
-   | TO_store (_ : Typ.type) (_ : Typ.type).
+  (* Heterogeneous binop *)
+  Inductive hbinop (t1 t2 : Typ.type) : Type :=
+   | BO_select 
+   | BO_diffarray
+  .
+  
+  Inductive nop  (t : Typ.type) : Type :=
+   | NO_distinct.
 
+  Inductive terop (t1 t2 : Typ.type) : Type :=
+   | TO_store 
+  .
+
+  (* assia: merge terop and hetero_binop ? *)
+  
   Notation hatom := int (only parsing).
 
   Inductive atom : Type :=
-   | Acop (_: cop)
-   | Auop (_ : unop) (_:hatom)
-   | Abop (_ : binop) (_:hatom) (_:hatom)
-   | Atop (_ : terop) (_:hatom) (_:hatom) (_:hatom)
-   | Anop (_ : nop) (_: list hatom)
-   | Aapp (_:func) (_: list hatom).
+  | Acop (_: cop)
+  | Auop (_ : unop) (_:hatom)
+  | Abop (_ : binop) (_:hatom) (_:hatom)
+  | Aeqop (t : Typ.type) (_ : eqop t) (_:hatom) (_:hatom)
+  | Ahbop (t1 t2 : Typ.type) (_ : hbinop t1 t2)  (_:hatom) (_:hatom)
+  | Atop (t1 t2 : Typ.type) (_ : terop t1 t2) (_:hatom) (_:hatom) (_:hatom)
+  | Anop (t : Typ.type) (_ : nop t) (_: list hatom)
+  | Aapp (_:func) (_: list hatom).
 
 
   (* Generic predicates and operations *)
@@ -805,7 +806,7 @@ Module Atom.
    | BO_Zle, BO_Zle
    | BO_Zge, BO_Zge
    | BO_Zgt, BO_Zgt => true
-   | BO_eq t, BO_eq t' => Typ.eqb t t'
+   (* | BO_eq t, BO_eq t' => Typ.eqb t t' *)
    | BO_BVand s1, BO_BVand s2 => N.eqb s1 s2
    | BO_BVor s1, BO_BVor s2
    | BO_BVxor s1, BO_BVxor s2
@@ -816,33 +817,41 @@ Module Atom.
    | BO_BVconcat s1 s2, BO_BVconcat s3 s4 => N.eqb s1 s3 && N.eqb s2 s4
    | BO_BVshl s1, BO_BVshl s2 => N.eqb s1 s2
    | BO_BVshr s1, BO_BVshr s2 => N.eqb s1 s2
-   | BO_select ti te, BO_select ti' te'
-   | BO_diffarray ti te, BO_diffarray ti' te' => Typ.eqb ti ti' && Typ.eqb te te'
+   (* | BO_select ti te, BO_select ti' te' *)
+   (* | BO_diffarray ti te, BO_diffarray ti' te' => Typ.eqb ti ti' && Typ.eqb te te' *)
    | _,_ => false
    end.
 
-  Definition top_eqb o o' :=
-   match o, o' with
-   | TO_store ti te, TO_store ti' te' => Typ.eqb ti ti' && Typ.eqb te te'
-   end.
+  Definition eqop_eqb {t t'} (o : eqop t) (o' : eqop t') := Typ.eqb t t'.
 
-  Definition nop_eqb o o' :=
+  Definition hbop_eqb {ti ti' te te'} (o : hbinop ti te) (o' : hbinop ti' te') :=
     match o, o' with
-      | NO_distinct t, NO_distinct t' => Typ.eqb t t'
+    |BO_select _ _, BO_select _ _ | BO_diffarray _ _, BO_diffarray _ _ => 
+                                      Typ.eqb ti ti' && Typ.eqb te te'
+    |_, _ => false
     end.
+
+  Definition top_eqb {ti ti' te te'} (o : terop ti te) (o' : terop ti' te') :=
+    Typ.eqb ti ti' && Typ.eqb te te'.
+
+  Definition nop_eqb {t t'} (o : nop t) (o' : nop t') := Typ.eqb t t'.
 
   Definition eqb (t t':atom) :=
     match t,t' with
     | Acop o, Acop o' => cop_eqb o o'
     | Auop o t, Auop o' t' => uop_eqb o o' && (t =? t')
     | Abop o t1 t2, Abop o' t1' t2' => bop_eqb o o' && (t1 =? t1') && (t2 =? t2')
-    | Anop o t, Anop o' t' => nop_eqb o o' && list_beq Int63.eqb t t'
-    | Atop o t1 t2 t3, Atop o' t1' t2' t3' =>
+    | Aeqop c o t1 t2, Aeqop c' o' t1' t2' =>
+        eqop_eqb o o' && (t1 =? t1') && (t2 =? t2')
+    | Ahbop _ _ o t1 t2, Ahbop _ _ o' t1' t2' =>
+        hbop_eqb o o' && (t1 =? t1') && (t2 =? t2')
+    | Anop _ o t, Anop _ o' t' => nop_eqb o o' && list_beq Int63.eqb t t'
+    | Atop _ _ o t1 t2 t3, Atop _ _ o' t1' t2' t3' =>
       top_eqb o o' && (t1 =? t1') && (t2 =? t2') && (t3 =? t3')
     | Aapp a la, Aapp b lb => (a =? b) && list_beq Int63.eqb la lb
     | _, _ => false
     end.
-
+  
   Ltac preflect t :=
     let Heq := fresh "Heq" in
       let Hd := fresh "Hd" in
@@ -909,10 +918,10 @@ Module Atom.
 
   Lemma reflect_bop_eqb : forall o1 o2, reflect (o1 = o2) (bop_eqb o1 o2).
   Proof.
-    intros [ | | | | | | | A1|s1|s1 |s1 | s1 | s1 | s1 | s1 | s1 | s1 | s1 | I1 E1 | I1 E1 ]
-           [ | | | | | | | A2|s2|s2| s2 | s2 | s2 | s2 | s2 | s2 | s2 | s2 |I2 E2 | I2 E2 ];
+    intros [ | | | | | | | A1|s1|s1 |s1 | s1 | s1 | s1 | s1 | s1 | s1] 
+           [ | | | | | | | A2|s2|s2| s2 | s2 | s2 | s2 | s2 | s2 | s2];
       simpl;try (constructor;trivial;discriminate).
-   - preflect (Typ.reflect_eqb A1 A2).
+   - preflect (N.eqb_spec A1 A2).
      constructor;subst;trivial.
    - preflect (N.eqb_spec s1 s2).
      constructor;subst;trivial.
@@ -927,63 +936,110 @@ Module Atom.
    - preflect (N.eqb_spec s1 s2).
      constructor;subst;trivial.
    - preflect (N.eqb_spec s1 s2).
-     constructor;subst;trivial.
-   - intros.
-     preflect (N.eqb_spec s1 s2).
      preflect (N.eqb_spec n n0).
      constructor;subst;trivial.
-
    - preflect (N.eqb_spec s1 s2).
      constructor;subst;trivial.
    - preflect (N.eqb_spec s1 s2).
-     constructor;subst;trivial.
-
-   - preflect (Typ.reflect_eqb I1 I2).
-     preflect (Typ.reflect_eqb E1 E2).
-     constructor;subst;trivial.
-   - preflect (Typ.reflect_eqb I1 I2).
-     preflect (Typ.reflect_eqb E1 E2).
      constructor;subst;trivial.
 Qed.
 
-  Lemma reflect_top_eqb : forall o1 o2, reflect (o1 = o2) (top_eqb o1 o2).
+  Lemma eqop_ssingl t (o1 o2 : eqop t) : o1 = o2.
+  Proof. now case o1; case o2. Qed.
+
+  Lemma eqop_eqbT t (o1 o2 : eqop t) : eqop_eqb o1 o2 = true.
+  Proof. now unfold eqop_eqb; rewrite Typ.eqb_refl. Qed.
+
+  (* assia: for the sake of uniformity but not sure it is really useful *)
+  Lemma reflect_eqop_eqb t (o1 o2 : eqop t) : reflect (o1 = o2) (eqop_eqb o1 o2).
   Proof.
-    intros [ I1 E1 ] [ I2 E2 ]. simpl.
-    preflect (Typ.reflect_eqb I1 I2).
-    preflect (Typ.reflect_eqb E1 E2).
-    constructor;subst;trivial.
+  now rewrite eqop_eqbT; apply ReflectT; apply eqop_ssingl.
   Qed.
 
-  Lemma reflect_nop_eqb : forall o1 o2, reflect (o1 = o2) (nop_eqb o1 o2).
+  Lemma reflect_hbop_eqb t t' (o1 o2 : hbinop t t') : reflect (o1 = o2) (hbop_eqb o1 o2).
   Proof.
-    intros [t1] [t2]; simpl; preflect (Typ.reflect_eqb t1 t2); constructor; subst; reflexivity.
+  unfold hbop_eqb; rewrite !Typ.eqb_refl; case o1; case o2; simpl.
+  - now apply ReflectT.
+  - now apply ReflectF.
+  - now apply ReflectF.
+  - now apply ReflectT.
   Qed.
 
-  Lemma reflect_eqb : forall t1 t2, reflect (t1 = t2) (eqb t1 t2).
+  Lemma terop_ssingl t1 t2 (o1 o2 : terop t1 t2) : o1 = o2.
+  Proof. now case o1; case o2. Qed.
+
+  Lemma top_eqbT t1 t2 (o1 o2 : terop t1 t2) : top_eqb o1 o2 = true.
+  Proof. now unfold top_eqb; rewrite !Typ.eqb_refl. Qed.
+
+  (* assia: for the sake of uniformity but not sure it is really useful *)
+  Lemma reflect_top_eqb t1 t2 (o1 o2 : terop t1 t2) : reflect (o1 = o2) (top_eqb o1 o2).
+  Proof.
+  now rewrite top_eqbT; apply ReflectT; apply terop_ssingl.
+  Qed.
+
+  Lemma nop_ssingl t (o1 o2 : nop t) : o1 = o2.
+  Proof. now case o1; case o2. Qed.
+
+  Lemma nop_eqbT t (o1 o2 : nop t) : nop_eqb o1 o2 = true.
+  Proof. now unfold nop_eqb; rewrite !Typ.eqb_refl. Qed.
+
+  (* assia: for the sake of uniformity but not sure it is really useful *)
+  Lemma reflect_nop_eqb t (o1 o2 : nop t) : reflect (o1 = o2) (nop_eqb o1 o2).
+  Proof.
+  now rewrite nop_eqbT; apply ReflectT; apply nop_ssingl.
+  Qed.
+
+
+  (* assia: dirty but temporary: some scripts above are broken otherwise *)
+  (* TODO: move up, and take benefit of ssrbool everywhere (e.g., tern. conj) *)
+Require Import ssreflect ssrbool.
+  
+  Lemma reflect_eqb t1 t2 : reflect (t1 = t2) (eqb t1 t2).
   Proof.
     destruct t1;destruct t2;simpl; try (constructor;trivial;discriminate).
     (* Constants *)
-    preflect (reflect_cop_eqb c c0);constructor;subst;trivial.
+    - preflect (reflect_cop_eqb c c0);constructor;subst;trivial.
     (* Unary operators *)
-    preflect (reflect_uop_eqb u u0); preflect (Misc.reflect_eqb i i0);
+    - preflect (reflect_uop_eqb u u0); preflect (Misc.reflect_eqb i i0);
       constructor;subst;trivial.
     (* Binary operators *)
-    preflect (reflect_bop_eqb b b0);
-    preflect (Misc.reflect_eqb i i1);
-    preflect (Misc.reflect_eqb i0 i2);
-    constructor;subst;trivial.
-    (* Ternary operators *)
-    preflect (reflect_top_eqb t t0).
-    preflect (Misc.reflect_eqb i i2).
-    preflect (Misc.reflect_eqb i0 i3).
-    preflect (Misc.reflect_eqb i1 i4).
-    constructor;subst;trivial.
-    (* N-ary operators *)
-    preflect (reflect_nop_eqb n n0);
-    preflect (reflect_list_beq _ _ Misc.reflect_eqb l l0);
-    constructor; subst; reflexivity.
+    - preflect (reflect_bop_eqb b b0);
+      preflect (Misc.reflect_eqb i i1);
+      preflect (Misc.reflect_eqb i0 i2);
+      constructor;subst;trivial.
+    (* Equality operator *)
+    - apply: (iffP idP).
+      + case/andP; case/andP=> /Typ.reflect_eqb ett0 /reflect_eqb-> /reflect_eqb->. 
+      now move: e0; elim: ett0=> e'; case: e; case: e'.
+      + case=> ett0; elim: ett0 e0 => e' h -> ->; elim: h.
+      by rewrite eqop_eqbT !Int63.eqb_refl. 
+    (* Heterogeneous binary operators *)
+    - case: h; case: h0=> //=; try (by apply: ReflectF; discriminate).
+      + apply: (iffP idP).
+        * case/andP; case/andP; case/andP=> /Typ.reflect_eqb; elim=> /Typ.reflect_eqb.
+          by elim=>  /reflect_eqb-> /reflect_eqb->. 
+        * by case=> -> -> -> ->; rewrite !Int63.eqb_refl !Typ.eqb_refl.
+      + (* copy pasted from the previous subgoal *)
+        apply: (iffP idP).
+        * case/andP; case/andP; case/andP=> /Typ.reflect_eqb; elim=> /Typ.reflect_eqb.
+          by elim=>  /reflect_eqb-> /reflect_eqb->. 
+        * by case=> -> -> -> ->; rewrite !Int63.eqb_refl !Typ.eqb_refl.
+    (* Ternary *)
+    - apply: (iffP idP).
+      + case/andP; case/andP; case/andP.
+        case/andP=> /Typ.reflect_eqb et12  /Typ.reflect_eqb et34; elim: et12 t t4.
+        elim: et34=> o1 o2 /reflect_eqb-> /reflect_eqb->  /reflect_eqb->. 
+        by rewrite (terop_ssingl _ _ o1 o2).
+      + case=> et12; elim: et12 t t4=> o1 o2 e03; elim: e03 o1 o2 => o1 o2 _ -> -> ->.
+        by rewrite top_eqbT !Int63.eqb_refl.
+    (* Nop *)
+    - apply: (iffP idP).
+      + case/andP=> /Typ.reflect_eqb ett0 /(reflect_list_beq _ _ reflect_eqb)->.  
+        by elim: ett0 n n0=> n n0; rewrite (nop_ssingl _ n n0).
+      + case=> ett0; elim: ett0 n n0=> n n0 _ ->.  
+      by rewrite nop_eqbT; apply/(reflect_list_beq _ _ reflect_eqb).  
     (* Application *)
-    preflect (Misc.reflect_eqb i i0);
+    - preflect (Misc.reflect_eqb i i0);
     preflect (reflect_list_beq _ _ Misc.reflect_eqb l l0);
     constructor;subst;trivial.
   Qed.
@@ -1001,7 +1057,7 @@ Qed.
   }.
 
   Section Typing_Interp.
-    Variable t_i : PArray.array typ_compdec.
+    Variable t_i : PArray.array Type.
 
     Local Notation interp_t := (Typ.interp t_i).
     Local Notation interp_ft := (Typ.interp_ftype t_i).
@@ -1024,7 +1080,7 @@ Qed.
         | Typ.Cast k => k _ (v_val _ _ x) = v_val _ _ (Bval T u)
         | Typ.NoCast => True
       end) (Bval T t)).
-      rewrite H, Typ.cast_refl; reflexivity.
+      rewrite H Typ.cast_refl; reflexivity.
       simpl in H1; rewrite Typ.cast_refl in H1; auto.
     Qed.
 
@@ -1057,6 +1113,8 @@ Qed.
         | UO_BVsextn s i => (Typ.TBV s, Typ.TBV (i + s))
         end.
 
+(* assia : HERE *)
+      
       Definition typ_bop o :=
         match o with
         | BO_Zplus  => ((Typ.TZ,Typ.TZ), Typ.TZ)
@@ -1471,8 +1529,7 @@ Qed.
           apply_unop (Typ.TBV s) (Typ.TBV (i + s)) (@BITVECTOR_LIST.bv_zextn s i)
         | UO_BVsextn s i =>
           apply_unop (Typ.TBV s) (Typ.TBV (i + s)) (@BITVECTOR_LIST.bv_sextn s i)
-        end.
-
+        end. 
 
       Definition interp_bop o :=
          match o  with
@@ -1483,7 +1540,7 @@ Qed.
          | BO_Zle => apply_binop Typ.TZ Typ.TZ Typ.Tbool Zle_bool
          | BO_Zge => apply_binop Typ.TZ Typ.TZ Typ.Tbool Zge_bool
          | BO_Zgt => apply_binop Typ.TZ Typ.TZ Typ.Tbool Zgt_bool
-         | BO_eq t => apply_binop t t Typ.Tbool (Typ.i_eqb t_i t)
+         | BO_eq t => apply_binop t t Typ.Tbool (Typ.i_eqb t_i t) (**)
          | BO_BVand s =>
            apply_binop (Typ.TBV s) (Typ.TBV s) (Typ.TBV s) (@BITVECTOR_LIST.bv_and s)
          | BO_BVor s  =>
@@ -1504,7 +1561,8 @@ Qed.
            apply_binop (Typ.TBV s) (Typ.TBV s) (Typ.TBV s) (@BITVECTOR_LIST.bv_shl s)
          | BO_BVshr s =>
            apply_binop (Typ.TBV s) (Typ.TBV s) (Typ.TBV s) (@BITVECTOR_LIST.bv_shr s)
-         | BO_select ti te => apply_binop (Typ.TFArray ti te) ti te FArray.select
+         | BO_select ti te =>
+             apply_binop (Typ.TFArray ti te) ti te FArray.select (**)
          | BO_diffarray ti te =>
            let iti := Typ.interp_compdec_aux t_i ti in
            let ite := Typ.interp_compdec_aux t_i te in
@@ -1512,7 +1570,7 @@ Qed.
            let cte := projT2 ite in
            let tti := type_compdec cti in
            let tte := type_compdec cte in
-           apply_binop (Typ.TFArray ti te) (Typ.TFArray ti te) ti (@FArray.diff tti tte (@EqbToDecType _ (@eqbtype_of_compdec tti cti)) (@ord_of_compdec tti cti) (@comp_of_compdec tti cti) (@EqbToDecType _ (@eqbtype_of_compdec tte cte)) (@ord_of_compdec tte cte) (@comp_of_compdec tte cte) (@inh_of_compdec tti cti) (@inh_of_compdec tte cte))
+           apply_binop (Typ.TFArray ti te) (Typ.TFArray ti te) ti (@FArray.diff tti tte (@EqbToDecType _ (@eqbtype_of_compdec tti cti)) (@ord_of_compdec tti cti) (@comp_of_compdec tti cti) (@EqbToDecType _ (@eqbtype_of_compdec tte cte)) (@ord_of_compdec tte cte) (@comp_of_compdec tte cte) (@inh_of_compdec tti cti) (@inh_of_compdec tte cte)) (**)
          end.
 
       Definition interp_top o :=

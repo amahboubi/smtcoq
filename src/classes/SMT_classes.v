@@ -170,7 +170,7 @@ Global Instance comp_of_compdec {t} `{c: CompDec t} : @Comparable t (ord_of_comp
 Defined.
 
 
-Definition type_compdec {ty:Type} (cd : CompDec ty) := ty.
+(* Definition type_compdec {ty:Type} (cd : CompDec ty) := ty. *)
 
 Definition eqb_of_compdec {t} (c : CompDec t) : t -> t -> bool :=
   match eqbtype_of_compdec (t:=t) with
